@@ -1,6 +1,8 @@
-# deepdream
+# simpledream
 
-This repository contains IPython Notebook with sample code, complementing 
+This repository contains a reorganisation of the deepdream ipython notebook to use with a class of students who are not familiar with programming.
+
+The deepdream notebook complements the 
 Google Research [blog post](http://googleresearch.blogspot.ch/2015/06/inceptionism-going-deeper-into-neural.html) about Neural Network art.
 See [original gallery](https://photos.google.com/share/AF1QipPX0SCl7OzWilt9LnuQliattX4OUCj_8EP65_cTVnBmS1jnYgsGQAieQUc1VQWdgQ?key=aVBxWjhwSzg2RjJWLWRuVFBBZEN1d205bUdEMnhB) for more examples.
 
