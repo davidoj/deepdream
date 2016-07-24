@@ -9,8 +9,14 @@ See [original gallery](https://photos.google.com/share/AF1QipPX0SCl7OzWilt9LnuQl
 You can view "dream.ipynb" directly on github, or clone the repository, 
 install dependencies listed in the notebook and play with code locally.
 
-It'll be interesting to see what imagery people are able to generate using the described technique. If you post images to Google+, Facebook, or Twitter, be sure to tag them with [#deepdream](https://twitter.com/hashtag/deepdream) so other researchers can check them out too.
+It'll be interesting to see what imagery people are able to generate
+using the described technique. If you post images to Google+,
+Facebook, or Twitter, be sure to tag them with #deepdream so other
+researchers can check them out too.
 
-* [Alexander Mordvintsev](mailto:moralex@google.com)
-* [Michael Tyka](https://www.twitter.com/mtyka)
-* [Christopher Olah](mailto:colah@google.com)
+
+##Dependencies
+This notebook is designed to have as few dependencies as possible:
+* Standard Python scientific stack: [NumPy](http://www.numpy.org/), [SciPy](http://www.scipy.org/), [PIL](http://www.pythonware.com/products/pil/), [IPython](http://ipython.org/). Those libraries can also be installed as a part of one of the scientific packages for Python, such as [Anaconda](http://continuum.io/downloads) or [Canopy](https://store.enthought.com/).
+* [Caffe](http://caffe.berkeleyvision.org/) deep learning framework ([installation instructions](http://caffe.berkeleyvision.org/installation.html)).
+* Google [protobuf](https://developers.google.com/protocol-buffers/) library that is used for Caffe model manipulation.
