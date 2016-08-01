@@ -6,6 +6,8 @@ import PIL.Image
 from IPython.display import clear_output, Image, display
 from google.protobuf import text_format
 
+from functools import partial
+
 import caffe
 
 import validators
@@ -43,7 +45,7 @@ def showimage(a, fmt='jpeg'):
     PIL.Image.fromarray(a).save(f, fmt)
     display(Image(data=f.getvalue()))
 
-def openimage(filename):
+def openimage(filename, scale = False):
     if validators.url(filename):
         fn = getImgName(filename)
         if not fn:
@@ -54,7 +56,17 @@ def openimage(filename):
         del response
         filename = fn
 
-    return np.float32(PIL.Image.open(filename))
+    img = PIL.Image.open(filename)
+    if scale:
+        img = scaleimage(img)
+
+    return np.float32(img)
+
+def scaleimage(img, basewidth = 224):
+    wpercent = (basewidth/float(img.size[0]))
+    hsize = int((float(img.size[1])*float(wpercent)))
+    img = img.resize((basewidth,hsize), PIL.Image.ANTIALIAS)
+    return img
 
 model_path = '/home/david/Dropbox/code/caffe/models/bvlc_googlenet/' # substitute your path here
 net_fn   = model_path + 'deploy.prototxt'
@@ -78,8 +90,27 @@ def deprocess(net, img):
     return np.dstack((img + net.transformer.mean['data'])[::-1])
 
 
+def get_guide_features(im, layer):
+    end = layerdict[layer]
+    h, w = im.shape[:2]
+    src, dst = net.blobs['data'], net.blobs[end]
+    src.reshape(1,3,h,w)
+    src.data[0] = preprocess(net, im)
+    net.forward(end=end)
+    guide_features = dst.data[0].copy()
+    return guide_features
+
 def objective_L2(dst):
     dst.diff[:] = dst.data 
+
+def objective_guide(guide_features, dst):
+    x = dst.data[0].copy()
+    y = guide_features
+    ch = x.shape[0]
+    x = x.reshape(ch,-1)
+    y = y.reshape(ch,-1)
+    A = x.T.dot(y) # compute the matrix of dot-products with guide features
+    dst.diff[0].reshape(ch,-1)[:] = y[:,A.argmax(1)] # select ones that match best
 
 def make_step(net, step_size=1.5, end='inception_4d/output_inception_4d/output_0_split_2', 
               jitter=32, clip=True, objective=objective_L2):
@@ -141,3 +172,12 @@ def deepdream(net, base_img, iter_n=10, octave_n=4, octave_scale=1.4,
         detail = src.data[0]-octave_base
     # returning the resulting image
     return deprocess(net, src.data[0])
+
+
+def dreaminto(net, base_img, into_img, iter_n=10, octave_n=4, octave_scale=1.4,
+              layer = 'c2', clip=True, **step_params):
+    gfeats = get_guide_features(into_img, layer)
+    obj = partial(objective_guide,gfeats)
+    return deepdream(net, base_img, iter_n=iter_n, octave_n=octave_n, octave_scale=octave_scale,
+              layer = layer, clip=True, objective=obj, **step_params)
+    
